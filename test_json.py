@@ -29,9 +29,12 @@ prompt = f"""
 You are an expert embedded systems diagnostic engineer.
 Target Expected Circuit: {expected_circuit}
 
-Inspect the circuit image against the target specification. Note that this is a 2D rendering from Tinkercad.
-Evaluate whether the connections complete valid circuits for each of the three LEDs without destructive shorts.
+IMPORTANT 2D VISUAL INTERPRETATION RULES:
+1. Insulated Wire Overlaps: In this 2D diagram, wires visually crossing over headers, power rails, or other wires are insulated jumpers. An overlap is NOT a solder bridge or short circuit unless a wire explicitly terminates into that pinhole.
+2. Ground Returns: The long horizontal black wires originating from LED cathodes stretch across the breadboard and plug directly into the left '-' Ground rail holes (rows 1, 12, 23/24).
+3. Wire Colors: Red wire connects D8, Yellow wire connects D7, Green wire connects D4.
 
+Evaluate whether each LED branch completes a valid series path (Arduino Pin -> Resistor -> LED -> Ground rail -> Arduino GND) without destructive shorts[cite: 5].
 Return ONLY a valid, raw JSON object (no markdown, no backticks, no text outside JSON).
 
 Schema:
