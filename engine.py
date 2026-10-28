@@ -15,14 +15,14 @@ client = OpenAI(
 CIRCUIT_PRESETS = {
     "Arduino Uno 3-LED Traffic Light": (
         "Project: Arduino Uno Traffic Light Circuit (Tinkercad Simulation). "
-        "Intended Design: Digital pins D8, D7, and D4 drive Red, Yellow, Green LEDs. "
+        "Intended Design: Digital pins D8 (Red wire), D7 (Yellow wire), and D4 (Green wire) drive Red, Yellow, Green LEDs. "
         "Each branch requires a current-limiting resistor (220 ohm to 1k ohm). "
-        "Cathodes must return to the breadboard common ground rail connected to Arduino GND."
+        "Cathodes (long horizontal black wires) must return to the breadboard common '-' ground rail connected to Arduino GND."
     ),
     "General Circuit Inspection (Auto-Detect / Custom)": (
         "Project: Unknown / Custom breadboard circuit. "
-        "Goal: Perform a general electrical and safety diagnostic. Detect the microcontroller, trace visible connections, "
-        "verify power/ground integrity, identify active loads, and check for missing current-limiting resistors or direct shorts."
+        "Goal: Perform a general electrical and safety diagnostic. Detect the microcontroller and all sensors/modules, trace visible connections, "
+        "verify power/ground rail continuity, identify active loads or pull-up/load resistors, and check for missing current limiters or direct shorts."
     )
 }
 
@@ -39,8 +39,7 @@ def analyze_circuit(image_bytes: bytes, preset_name: str) -> dict:
 
     2D VISUAL INTERPRETATION RULES (Tinkercad / Diagram Context):
     1. Insulated Wire Overlaps: In 2D breadboard views, lines visually crossing over headers, power rails, or other wires are insulated jumpers. Do NOT mark an intersection as a short circuit unless a wire clearly terminates into that hole.
-    2. Power/Ground Connections: Long horizontal black wires originating from LED cathodes stretch across the breadboard and plug directly into the left '-' Ground rail holes. Verify whether return leads terminate into the ground rail and connect back to Arduino GND.
-    3. Wire Colors: Red wire connects D8, Yellow wire connects D7, Green wire connects D4.
+    2. Power/Ground Connections: Verify whether return leads terminate into the power/ground rails and connect back to the microcontroller supply pins.
 
     Evaluate the circuit against the target specification.
     For spatial annotations, estimate bounding boxes as [x_min, y_min, x_max, y_max] in percentages (0 to 100) relative to image width and height.
