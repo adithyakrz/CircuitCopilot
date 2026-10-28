@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CircuitCopilot | Embedded Diagnostic Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800 px-6 py-4 flex items-center justify-between bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-indigo-400">
+        <i class="fa-solid fa-microchip text-xl"></i>
+      </div>
+      <div>
+        <h1 class="text-base font-bold tracking-tight text-white">CircuitCopilot</h1>
+        <p class="text-xs text-slate-400">Multimodal Embedded Hardware Diagnostic Engine &bull; Meta Muse Spark 1.3</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-1.5 h-1.5 mr-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Engine Ready
+      </span>
+    </div>
+  </header>
+
+  <!-- Main Content Workspace -->
+  <main class="flex-1 p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-7xl mx-auto w-full">
+    <!-- Left Panel: Input & Blueprint Controls -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg">
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Target Blueprint</label>
+        <select id="presetSelect" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none mb-4">
+          <option value="Arduino Uno 3-LED Traffic Light">Arduino Uno 3-LED Traffic Light (D8, D7, D4)</option>
+          <option value="General Circuit Inspection (Auto-Detect / Custom)">General Circuit Inspection (Auto-Detect)</option>
+        </select>
+
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Circuit Capture</label>
+        <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 transition rounded-xl p-6 text-center cursor-pointer bg-slate-950/40">
+          <input type="file" id="fileInput" accept="image/*" class="hidden">
+          <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-500 mb-2"></i>
+          <p class="text-xs text-slate-300 font-medium" id="fileLabel">Click to select or drop circuit image</p>
+          <p class="text-[11px] text-slate-500 mt-1">Supports PNG, JPG, or Tinkercad renders</p>
+        </div>
+
+        <div id="previewContainer" class="hidden mt-4">
+          <img id="imagePreview" class="w-full rounded-lg border border-slate-800 max-h-64 object-contain bg-black/40">
+        </div>
+
+        <button id="inspectBtn" class="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg text-xs tracking-wide transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-bolt"></i> Run Automated Verification
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Panel: Diagnostic Telemetry -->
+    <div class="lg:col-span-7 flex flex-col">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg flex-1 flex flex-col">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+          <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Diagnostic Telemetry</h2>
+          <span id="statusBadge" class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-800 text-slate-400">AWAITING INPUT</span>
+        </div>
+
+        <!-- Initial Placeholder State -->
+        <div id="placeholder" class="my-auto text-center text-slate-600 py-20">
+          <i class="fa-solid fa-microchip text-4xl mb-3 text-slate-700"></i>
+          <p class="text-xs">Upload a circuit capture on the left and run verification.</p>
+        </div>
+
+        <!-- Diagnostic Output View -->
+        <div id="telemetryData" class="hidden flex flex-col gap-4">
+          <div id="summaryBox" class="p-3.5 rounded-lg border text-xs leading-relaxed"></div>
+
+          <!-- Quick Metrics Grid -->
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+              <span class="text-[10px] text-slate-500 uppercase font-semibold">Short-Circuit Risk</span>
+              <p id="riskVal" class="text-sm font-bold mt-1 text-slate-200">--</p>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+              <span class="text-[10px] text-slate-500 uppercase font-semibold">Resistors</span>
+              <p id="resVal" class="text-sm font-bold mt-1 text-slate-200">--</p>
+            </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-lg p-3">
+              <span class="text-[10px] text-slate-500 uppercase font-semibold">Common GND</span>
+              <p id="gndVal" class="text-sm font-bold mt-1 text-slate-200">--</p>
+            </div>
+          </div>
+
+          <!-- Trace Inspection Details -->
+          <div>
+            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Pin Trace Analysis</h3>
+            <div id="pinList" class="flex flex-col gap-2"></div>
+          </div>
+
+          <!-- Remediation Checklist -->
+          <div>
+            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Prescribed Actions</h3>
+            <ul id="actionList" class="list-disc pl-5 text-xs text-slate-300 space-y-1"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const dropzone = document.getElementById('dropzone');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileLabel = document.getElementById('fileLabel');
+    const inspectBtn = document.getElementById('inspectBtn');
+
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('border-indigo-500'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('border-indigo-500'));
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-indigo-500');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+      if (!file) return;
+      fileLabel.innerText = file.name;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        previewContainer.classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    inspectBtn.addEventListener('click', async () => {
+      const file = fileInput.files[0];
+      if (!file) { alert('Please select a circuit image first.'); return; }
+      const preset = document.getElementById('presetSelect').value;
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('preset', preset);
+
+      inspectBtn.disabled = true;
+      inspectBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Analyzing Circuit with Muse Spark 1.3...';
+
+      try {
+        const res = await fetch('/api/inspect', { method: 'POST', body: formData });
+        const data = await res.json();
+        renderReport(data);
+      } catch (err) {
+        alert('Diagnostic request failed: ' + err);
+      } finally {
+        inspectBtn.disabled = false;
+        inspectBtn.innerHTML = '<i class="fa-solid fa-bolt"></i> Run Automated Verification';
+      }
+    });
+
+    function renderReport(data) {
+      document.getElementById('placeholder').classList.add('hidden');
+      document.getElementById('telemetryData').classList.remove('hidden');
+
+      const badge = document.getElementById('statusBadge');
+      const summaryBox = document.getElementById('summaryBox');
+
+      if (data.status === 'PASS') {
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        badge.innerText = 'PASS';
+        summaryBox.className = 'p-3.5 rounded-lg border text-xs font-medium bg-emerald-500/10 border-emerald-500/20 text-emerald-300';
+      } else if (data.status === 'WARN') {
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        badge.innerText = 'WARN';
+        summaryBox.className = 'p-3.5 rounded-lg border text-xs font-medium bg-amber-500/10 border-amber-500/20 text-amber-300';
+      } else {
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        badge.innerText = 'FAIL';
+        summaryBox.className = 'p-3.5 rounded-lg border text-xs font-medium bg-rose-500/10 border-rose-500/20 text-rose-300';
+      }
+      summaryBox.innerText = data.summary;
+
+      document.getElementById('riskVal').innerText = data.safety?.short_circuit_risk || 'NONE';
+      document.getElementById('resVal').innerText = data.resistor_check?.detected_value || 'Checked';
+      document.getElementById('gndVal').innerText = data.safety?.power_rail_grounded ? 'Connected' : 'Floating';
+
+      const pinList = document.getElementById('pinList');
+      pinList.innerHTML = '';
+      (data.pin_checks || []).forEach(pin => {
+        const item = document.createElement('div');
+        const isOk = pin.status === 'OK';
+        item.className = `p-2.5 rounded-lg border text-xs flex flex-col gap-1 ${isOk ? 'bg-slate-950/60 border-slate-800' : 'bg-rose-950/20 border-rose-900/40'}`;
+        item.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-200">${pin.pin} &rarr; ${pin.target_led}</span>
+            <span class="${isOk ? 'text-emerald-400' : 'text-rose-400'} font-semibold">${pin.status}</span>
+          </div>
+          <p class="text-slate-400 text-[11px]">${pin.detail}</p>
+        `;
+        pinList.appendChild(item);
+      });
+
+      const actionList = document.getElementById('actionList');
+      actionList.innerHTML = '';
+      (data.action_items || []).forEach(action => {
+        const li = document.createElement('li');
+        li.innerText = action;
+        actionList.appendChild(li);
+      });
+    }
+  </script>
+</body>
+</html>
