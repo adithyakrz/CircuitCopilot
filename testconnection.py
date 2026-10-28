@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-# Load from .env if not already set in environment
 load_dotenv()
 
 api_key = os.environ.get("MODEL_API_KEY")
