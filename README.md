@@ -1,6 +1,17 @@
+<div align="center">
+
+<img src="https://cdn.simpleicons.org/meta/0866FF" alt="Meta" width="56" />
+
 # CircuitCopilot
 
-**See the wiring. Find the fault. Fix the circuit.**
+### See the wiring. Find the fault. Fix the circuit.
+
+![Python](https://img.shields.io/badge/Python-3.9%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)
+![Vision model](https://img.shields.io/badge/Vision-Meta%20Muse%20Spark%201.3-7B61FF)
+![Diagnostics](https://img.shields.io/badge/Focus-Breadboard%20Diagnostics-18A999)
+
+</div>
 
 CircuitCopilot is a visual diagnostic workstation for breadboard circuits. Upload a circuit image, choose a target design, and get a structured assessment of its wiring, pin paths, safety risks, and next repair steps.
 
