@@ -39,8 +39,10 @@ def analyze_circuit(image_bytes: bytes, preset_name: str) -> dict:
 
     2D VISUAL INTERPRETATION RULES (Tinkercad / Diagram Context):
     1. Insulated Wire Overlaps: In 2D breadboard views, lines visually crossing over headers, power rails, or other wires are insulated jumpers. Do NOT mark an intersection as a short circuit unless a wire clearly terminates into that hole.
-    2. Power/Ground Connections: Verify whether return leads terminate into the power/ground rails and connect back to the microcontroller supply pins.
-
+    2. Power/Ground Connections & Cross-Span Tracing: Thoroughly trace return leads from their component terminals across the breadboard blocks to their destination rails. Check both left and right-side power/ground rails before declaring a net "floating" or ungrounded.
+    3. Grid Alignment Tolerance: Account for 2D perspective and pixel rendering limits. If a wire terminal or resistor leg appears to be within 1 row of a matching net node, treat it as connected unless there is a clear visual gap.
+    4. Strict Hallucination Prevention: Verify that any reported fault or extra wire is physically present and terminating into a valid hole, rather than misinterpreting background lines, whitespace, or wire arcs.
+    
     Evaluate the circuit against the target specification.
     For spatial annotations, estimate bounding boxes as [x_min, y_min, x_max, y_max] in percentages (0 to 100) relative to image width and height.
 
