@@ -25,18 +25,7 @@ It is built for the moments when a circuit looks almost right—but one missing 
 
 CircuitCopilot analyzes the image as a whole in a single model request. FastAPI accepts the upload and selected circuit preset; the Python diagnostic engine sends the image and a focused electrical-inspection prompt to **Meta Muse Spark 1.3**. The model returns one structured JSON diagnosis covering the circuit, pin checks, annotations, safety, and remediation. The browser renders that result in the workstation UI.
 
-```text
-Circuit image + design preset
-            |
-       FastAPI upload
-            |
- Single holistic vision analysis
-    (Meta Muse Spark 1.3)
-            |
- Structured diagnostics + repair steps
-            |
-       Workstation UI
-```
+![CircuitCopilot architecture diagram showing the image and design preset flowing through FastAPI and vision analysis to structured diagnostics in the workstation UI](./ArchitectureDiagram.png)
 
 That single-pass approach is deliberate. A naive per-wire pipeline would make repeated model calls, add latency with every connection, and increase the chance of timeouts or inconsistent conclusions between branches. One holistic pass gives the model the context to trace connections across the board and evaluate them against the same target specification.
 
