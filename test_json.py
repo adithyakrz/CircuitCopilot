@@ -12,7 +12,7 @@ client = OpenAI(
     api_key=os.environ.get("MODEL_API_KEY"),
 )
 
-IMAGE_PATH = Path("NoResistorTest.png")
+IMAGE_PATH = Path("./Test_Images/NoResistorTest.png")
 
 with open(IMAGE_PATH, "rb") as f:
     base64_image = base64.b64encode(f.read()).decode("utf-8")

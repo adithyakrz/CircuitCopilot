@@ -11,7 +11,7 @@ client = OpenAI(
     api_key=os.environ.get("MODEL_API_KEY"),
 )
 
-IMAGE_PATH = Path("NoResistorTest.png")
+IMAGE_PATH = Path("./Test_Images/NoResistorTest.png")
 
 if not IMAGE_PATH.exists():
     raise FileNotFoundError("Please save the image before running!")
